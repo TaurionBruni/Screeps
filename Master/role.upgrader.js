@@ -17,10 +17,19 @@ const roleUpgrader = {
                 creep.moveTo(creep.room.controller, {visualizePathStyle: {stroke: '#ffffff'}});
             }
         } else {
-            const source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
+            const target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+                filter: (structure) => {
+                    return (structure.structureType === STRUCTURE_CONTAINER ) &&
+                        structure.store[RESOURCE_ENERGY] > 0;
+                }
+            });
+            if (creep.withdraw(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                creep.moveTo(target, {visualizePathStyle: {stroke: '#ffaa00'}});
+            }
+            /*const source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
             if(creep.harvest(source) === ERR_NOT_IN_RANGE) {
                 creep.moveTo(source,{visualizePathStyle: {stroke: '#1e4bff'}});
-            }
+            }*/
         }
     }
 };

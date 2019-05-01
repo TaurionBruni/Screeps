@@ -1,20 +1,21 @@
 const roleBuilder = {
 
     run: function (creep) {
-        if(creep.memory.harvest && creep.carry.energy === 0){
-            creep.memory.harvest = false;
-            creep.say("🔄 harvest");
+        switch(true){
+            case creep.memory.harvest && creep.carry.energy === 0:
+                creep.memory.harvest = false;
+                creep.say("🔄 harvest");
+                break;
+            case !creep.memory.harvest && creep.carry.energy === creep.carryCapacity:
+                creep.memory.harvest = true;
+                creep.say('🛠️ moving');
         }
-        if(!creep.memory.harvest && creep.carry.energy === creep.carryCapacity){
-            creep.memory.harvest = true;
-            creep.say('🛠️ moving');
-        }
-        if(creep.memory.harvest){
 
+        if(creep.memory.harvest){
             // Find closest container thats not full
             const target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
                 filter: (structure) => {
-                    return (structure.structureType === STRUCTURE_CONTAINER ) &&
+                    return (structure.structureType === STRUCTURE_CONTAINER || structure.structureType === STRUCTURE_STORAGE) &&
                         structure.store[RESOURCE_ENERGY] < structure.storeCapacity;
                 }
             });
@@ -25,7 +26,7 @@ const roleBuilder = {
                 }
             }
 
-            else{
+            else {
                 //find a construction site and start building
                 const targets = creep.room.find(FIND_CONSTRUCTION_SITES);
                 if(targets.length) {
@@ -33,9 +34,9 @@ const roleBuilder = {
                         creep.moveTo(targets[0]);
                     }
                 }
-
-                }
-            }else{
+            }
+        }
+        else{
             const source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
             if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
                 creep.moveTo(source, {visualizePathStyle: {stroke: '#ffaa00'}});

@@ -11,10 +11,10 @@ const roleBuilder = {
         }
         if(creep.memory.building){
             //find a construction site and start building
-            const targets = creep.room.find(FIND_CONSTRUCTION_SITES);
-            if(targets.length) {
-                if(creep.build(targets[0]) === ERR_NOT_IN_RANGE){
-                    creep.moveTo(targets[0]);
+            const target = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
+            if(target) {
+                if(creep.build(target) === ERR_NOT_IN_RANGE){
+                    creep.moveTo(target);
                 }
             }
             else{
@@ -24,9 +24,14 @@ const roleBuilder = {
                 }
             }
         }else{
-            const source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
-            if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
-                creep.moveTo(source, {visualizePathStyle: {stroke: '#ffaa00'}});
+            const target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+                filter: (structure) => {
+                    return (structure.structureType === STRUCTURE_CONTAINER ) &&
+                        structure.store[RESOURCE_ENERGY] > 0;
+                }
+            });
+            if (creep.withdraw(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                creep.moveTo(target, {visualizePathStyle: {stroke: '#ffaa00'}});
             }
         }
     }
